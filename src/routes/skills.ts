@@ -6,63 +6,83 @@ const router = Router();
 
 // GET /api/skills
 router.get("/", async (_req: Request, res: Response) => {
-  const skills = await prisma.skill.findMany({
-    orderBy: [{ category: "asc" }, { order: "asc" }],
-  });
-  res.json(skills);
+  try {
+    const skills = await prisma.skill.findMany({
+      orderBy: [{ category: "asc" }, { order: "asc" }],
+    });
+    res.json(skills);
+  } catch (error) {
+    console.error("Skills GET error:", error);
+    res.status(500).json({ message: "Internal server error", error: String(error) });
+  }
 });
 
 // POST /api/skills
 router.post("/", authMiddleware, async (req: Request, res: Response) => {
-  const { name, iconUrl, category, proficiency, order } = req.body;
-  const skill = await prisma.skill.create({
-    data: {
-      name,
-      iconUrl: iconUrl || "",
-      category,
-      proficiency: proficiency || "Intermediate",
-      order: order ?? 0,
-    },
-  });
-  res.status(201).json(skill);
+  try {
+    const { name, iconUrl, category, proficiency, order } = req.body;
+    const skill = await prisma.skill.create({
+      data: {
+        name,
+        iconUrl: iconUrl || "",
+        category,
+        proficiency: proficiency || "Intermediate",
+        order: order ?? 0,
+      },
+    });
+    res.status(201).json(skill);
+  } catch (error) {
+    console.error("Skills POST error:", error);
+    res.status(500).json({ message: "Internal server error", error: String(error) });
+  }
 });
 
 // PUT /api/skills/:id
 router.put("/:id", authMiddleware, async (req: Request, res: Response): Promise<void> => {
-  const id = req.params.id as string;
-  const { name, iconUrl, category, proficiency, order } = req.body;
+  try {
+    const id = req.params.id as string;
+    const { name, iconUrl, category, proficiency, order } = req.body;
 
-  const existing = await prisma.skill.findUnique({ where: { id } });
-  if (!existing) {
-    res.status(404).json({ message: "Skill not found" });
-    return;
+    const existing = await prisma.skill.findUnique({ where: { id } });
+    if (!existing) {
+      res.status(404).json({ message: "Skill not found" });
+      return;
+    }
+
+    const skill = await prisma.skill.update({
+      where: { id },
+      data: {
+        name: name ?? undefined,
+        iconUrl: iconUrl ?? undefined,
+        category: category ?? undefined,
+        proficiency: proficiency ?? undefined,
+        order: order ?? undefined,
+      },
+    });
+    res.json(skill);
+  } catch (error) {
+    console.error("Skills PUT error:", error);
+    res.status(500).json({ message: "Internal server error", error: String(error) });
   }
-
-  const skill = await prisma.skill.update({
-    where: { id },
-    data: {
-      name: name ?? undefined,
-      iconUrl: iconUrl ?? undefined,
-      category: category ?? undefined,
-      proficiency: proficiency ?? undefined,
-      order: order ?? undefined,
-    },
-  });
-  res.json(skill);
 });
 
 // DELETE /api/skills/:id
 router.delete("/:id", authMiddleware, async (req: Request, res: Response): Promise<void> => {
-  const id = req.params.id as string;
+  try {
+    const id = req.params.id as string;
 
-  const existing = await prisma.skill.findUnique({ where: { id } });
-  if (!existing) {
-    res.status(404).json({ message: "Skill not found" });
-    return;
+    const existing = await prisma.skill.findUnique({ where: { id } });
+    if (!existing) {
+      res.status(404).json({ message: "Skill not found" });
+      return;
+    }
+
+    await prisma.skill.delete({ where: { id } });
+    res.json({ message: "Skill deleted" });
+  } catch (error) {
+    console.error("Skills DELETE error:", error);
+    res.status(500).json({ message: "Internal server error", error: String(error) });
   }
-
-  await prisma.skill.delete({ where: { id } });
-  res.json({ message: "Skill deleted" });
 });
 
 export default router;
