@@ -1,0 +1,103 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String   @default("Admin")
+  createdAt DateTime @default(now())
+}
+
+model Home {
+  id          String @id @default("singleton")
+  fullName    String @default("")
+  tagline     String @default("")
+  bio         String @default("")
+  avatarUrl   String @default("")
+  github      String @default("")
+  linkedin    String @default("")
+  twitter     String @default("")
+  email       String @default("")
+  updatedAt   DateTime @updatedAt
+}
+
+model Skill {
+  id          String @id @default(cuid())
+  name        String
+  iconUrl     String @default("")
+  category    String
+  proficiency String @default("Intermediate")
+  order       Int    @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Project {
+  id               String   @id @default(cuid())
+  title            String
+  shortDescription String   @default("")
+  fullDescription  String   @default("")
+  techStack        String[] @default([])
+  thumbnailUrl     String   @default("")
+  liveDemoUrl      String   @default("")
+  githubUrl        String   @default("")
+  featured         Boolean  @default(false)
+  displayOrder     Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Experience {
+  id              String   @id @default(cuid())
+  type            String
+  companyOrSchool String
+  roleOrDegree    String
+  location        String   @default("")
+  startDate       DateTime
+  endDate         DateTime?
+  isPresent       Boolean  @default(false)
+  description     String   @default("")
+  logoUrl         String   @default("")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model ContactMessage {
+  id           String   @id @default(cuid())
+  senderName   String
+  senderEmail  String
+  message      String
+  dateReceived DateTime @default(now())
+  status       String   @default("Unread")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Resume {
+  id        String @id @default("singleton")
+  pdfUrl    String?
+  summary   String @default("")
+  skills    String[] @default([])
+  updatedAt DateTime @updatedAt
+}
+
+model Certification {
+  id     String @id @default(cuid())
+  name   String
+  issuer String @default("")
+  date   String @default("")
+  url    String @default("")
+}
+
+model Language {
+  id    String @id @default(cuid())
+  name  String
+  level String @default("")
+}
