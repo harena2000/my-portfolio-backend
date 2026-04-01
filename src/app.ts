@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import path from "path";
 import dotenv from "dotenv";
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpec } from "./swagger";
 
 dotenv.config();
 
@@ -22,6 +24,12 @@ app.use(express.urlencoded({ extended: true }));
 
 // Serve uploaded files
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+
+// Swagger docs
+app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.get("/api/docs.json", (_req, res) => {
+  res.json(swaggerSpec);
+});
 
 // Routes
 app.use("/api/auth", authRoutes);
